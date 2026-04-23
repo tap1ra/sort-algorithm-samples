@@ -317,6 +317,14 @@ function openModal(algo: Algorithm) {
           <input type="range" id="speed-slider" min="1" max="5" value="3" class="speed-slider">
           <span id="speed-label" class="speed-label">x1.0</span>
         </div>
+        <div class="size-control">
+          <label for="size-select">Data Size:</label>
+          <select id="size-select" class="size-select">
+            <option value="15">Small (15)</option>
+            <option value="50">Large (50)</option>
+            <option value="100">Huge (100)</option>
+          </select>
+        </div>
         <button id="btn-demo" class="btn-demo">▶ Start ${algo.name}</button>
       </div>
 
@@ -356,6 +364,7 @@ function setupDemo(algo: Algorithm) {
   const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
   const speedLabel = document.getElementById('speed-label');
 
+  const sizeSelect = document.getElementById('size-select') as HTMLSelectElement;
   if (!container || !btn || !titleEl || !descEl || !speedSlider || !speedLabel) return;
 
   const speedMap: Record<number, { delay: number, label: string }> = {
@@ -374,23 +383,30 @@ function setupDemo(algo: Algorithm) {
   // initial label set
   speedLabel.textContent = speedMap[parseInt(speedSlider.value)].label;
 
-  // Generate random array
-  const arraySize = 15;
-  let arr = Array.from({length: arraySize}, () => Math.floor(Math.random() * 100) + 10);
+  // Generate random array based on selected size
+  let arraySize = sizeSelect ? parseInt(sizeSelect.value) : 15;
+  let arr = Array.from({length: arraySize}, () => Math.floor(Math.random() * 95) + 5);
+
+  sizeSelect?.addEventListener('change', () => {
+    arraySize = parseInt(sizeSelect.value);
+    arr = Array.from({length: arraySize}, () => Math.floor(Math.random() * 95) + 5);
+    renderArray();
+  });
   
   function renderArray(activeIndices: number[] = [], sortedIndices: number[] = [], message = { title: "Ready to start!", desc: "Startボタンを押すとアニメーションと解説が始まります。" }) {
     if (titleEl) titleEl.textContent = message.title;
     if (descEl) descEl.textContent = message.desc;
     if (!container) return;
+    const showValues = arr.length <= 20;
     container.innerHTML = arr.map((val, idx) => {
-      let color = 'var(--primary)'; // default blue
-      if (activeIndices.includes(idx)) color = 'var(--warning)'; // yellow/orange comparing
-      if (sortedIndices.includes(idx)) color = 'var(--secondary)'; // green sorted
-      return `<div class="array-bar" style="height: ${val}%; background: ${color};"><span class="bar-value">${val}</span></div>`;
+      let color = 'var(--primary)';
+      if (activeIndices.includes(idx)) color = 'var(--warning)';
+      if (sortedIndices.includes(idx)) color = 'var(--secondary)';
+      return `<div class="array-bar" style="height: ${val}%; background: ${color};"><span class="bar-value">${showValues ? val : ''}</span></div>`;
     }).join('');
   }
 
-  function renderCode(activeLine?: number, variables?: Record<string, any>) {
+  function renderCode(activeLine?: number, variables?: Record<string, any>, actionTitle?: string, actionDesc?: string) {
     const codeContainer = document.getElementById('code-container');
     if (!codeContainer) return;
     const lines = algo.code.split('\n');
@@ -399,13 +415,18 @@ function setupDemo(algo: Algorithm) {
       const isActive = lineNum === activeLine;
       const safeLine = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       
-      let varsHtml = '';
-      if (isActive && variables) {
-        const varsStr = Object.entries(variables).map(([k, v]) => `${k}=${v}`).join(', ');
-        varsHtml = `<span class="code-vars"> // ${varsStr}</span>`;
+      let tooltipHtml = '';
+      if (isActive && (variables || actionTitle)) {
+        const varRows = variables
+          ? Object.entries(variables).map(([k, v]) =>
+              `<div class="tooltip-var"><span class="tooltip-var-name">${k}</span><span class="tooltip-var-eq">=</span><span class="tooltip-var-val">${v}</span></div>`
+            ).join('')
+          : '';
+        const descHtml = actionTitle ? `<div class="tooltip-desc"><strong>${actionTitle}</strong>${actionDesc ? `<p>${actionDesc}</p>` : ''}</div>` : '';
+        tooltipHtml = `<div class="code-tooltip">${descHtml}${varRows ? `<div class="tooltip-vars">${varRows}</div>` : ''}<div class="code-tooltip-arrow"></div></div>`;
       }
 
-      return `<div class="code-line ${isActive ? 'active-line' : ''}"><span class="line-number">${lineNum}</span><span class="line-content">${safeLine}${varsHtml}</span></div>`;
+      return `<div class="code-line ${isActive ? 'active-line' : ''}"><span class="line-number">${lineNum}</span><span class="line-content">${safeLine}</span>${tooltipHtml}</div>`;
     }).join('');
 
     if (activeLine) {
@@ -442,12 +463,12 @@ function setupDemo(algo: Algorithm) {
       // state: { arr: number[], active: number[], sorted: number[], message?: {title, desc}, activeLine?: number, variables?: Record<string, any> }
       arr = [...state.arr];
       renderArray(state.active, state.sorted, state.message);
-      if (state.activeLine) renderCode(state.activeLine, state.variables);
+      if (state.activeLine) renderCode(state.activeLine, state.variables, state.message?.title, state.message?.desc);
       const currentDelay = speedMap[parseInt(speedSlider.value)].delay;
       await new Promise(r => setTimeout(r, currentDelay));
     }
 
-    renderArray([], Array.from({length: arraySize}, (_, i) => i), { title: "Sorting Complete!", desc: "ソートが完了しました。" }); // All sorted
+    renderArray([], Array.from({length: arr.length}, (_, i) => i), { title: "Sorting Complete!", desc: "ソートが完了しました。" }); // All sorted
     renderCode(); // clear active line
     btn.textContent = 'Done!';
     speedSlider.disabled = false;

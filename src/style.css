@@ -388,14 +388,15 @@ header p {
 }
 
 .array-bar {
-  width: 32px;
+  flex: 1;
+  min-width: 2px;
   background: var(--primary);
-  border-radius: 4px 4px 0 0;
+  border-radius: 2px 2px 0 0;
   transition: height 0.3s ease, background-color 0.2s ease;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 5px;
+  padding-top: 3px;
 }
 
 .bar-value {
@@ -460,6 +461,40 @@ header p {
   transform: none;
 }
 
+/* Size selector */
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.size-control label {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.size-select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.size-select:hover {
+  border-color: var(--primary);
+}
+
+.size-select option {
+  background: #1e293b;
+}
+
 /* Dual Pane Layout */
 .demo-dual-pane {
   display: flex;
@@ -510,9 +545,11 @@ header p {
 
 .code-line {
   display: flex;
+  align-items: center;
   padding: 0.15rem 1rem;
   border-left: 3px solid transparent;
   transition: background-color 0.2s, border-color 0.2s;
+  position: relative;
 }
 
 .code-line .line-number {
@@ -522,6 +559,7 @@ header p {
   margin-right: 1rem;
   user-select: none;
   opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .code-line .line-content {
@@ -533,6 +571,92 @@ header p {
   border-left-color: var(--primary);
   color: #fff;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Tooltip / Speech Bubble */
+.code-tooltip {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  min-width: 220px;
+  max-width: 380px;
+  z-index: 10;
+  box-shadow: 0 4px 24px rgba(59, 130, 246, 0.35), 0 0 0 1px rgba(59, 130, 246, 0.2);
+  animation: tooltipPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.code-tooltip-arrow {
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 8px solid var(--primary);
+}
+
+.tooltip-desc {
+  font-family: var(--font-main);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tooltip-desc strong {
+  font-size: 0.85rem;
+  color: var(--warning);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.tooltip-desc p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tooltip-vars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tooltip-var {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.tooltip-var-name {
+  color: #93c5fd;
+}
+
+.tooltip-var-eq {
+  color: var(--text-muted);
+}
+
+.tooltip-var-val {
+  color: var(--warning);
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+@keyframes tooltipPop {
+  from { opacity: 0; transform: translateY(-50%) scale(0.88); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1); }
 }
 
 @media (max-width: 900px) {
@@ -548,15 +672,5 @@ header p {
 }
 
 .code-vars {
-  color: var(--warning);
-  font-weight: 600;
-  margin-left: 1.5rem;
-  background: rgba(245, 158, 11, 0.15);
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  font-size: 0.85em;
-  vertical-align: middle;
-  display: inline-block;
-  opacity: 0.9;
+  display: none;
 }

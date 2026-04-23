@@ -16,7 +16,114 @@ interface Algorithm {
   speedScore: number; // 0 to 100, for visual progress bar
   merits: string[];
   demerits: string[];
+  code: string;
 }
+
+const bubbleSortCode = `function bubbleSort(arr) {
+  const n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+      }
+    }
+  }
+}`;
+
+const selectionSortCode = `function selectionSort(arr) {
+  const n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < n; j++) {
+      if (arr[j] < arr[minIdx]) {
+        minIdx = j;
+      }
+    }
+    if (minIdx !== i) {
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+    }
+  }
+}`;
+
+const insertionSortCode = `function insertionSort(arr) {
+  const n = arr.length;
+  for (let i = 1; i < n; i++) {
+    let key = arr[i];
+    let j = i - 1;
+    while (j >= 0 && arr[j] > key) {
+      arr[j + 1] = arr[j];
+      j--;
+    }
+    arr[j + 1] = key;
+  }
+}`;
+
+const mergeSortCode = `function mergeSort(arr, l, r) {
+  if (l >= r) return;
+  const m = l + Math.floor((r - l) / 2);
+  mergeSort(arr, l, m);
+  mergeSort(arr, m + 1, r);
+  merge(arr, l, m, r);
+}
+
+function merge(arr, l, m, r) {
+  const L = arr.slice(l, m + 1);
+  const R = arr.slice(m + 1, r + 1);
+  let i = 0, j = 0, k = l;
+  while (i < L.length && j < R.length) {
+    if (L[i] <= R[j]) {
+      arr[k++] = L[i++];
+    } else {
+      arr[k++] = R[j++];
+    }
+  }
+  while (i < L.length) arr[k++] = L[i++];
+  while (j < R.length) arr[k++] = R[j++];
+}`;
+
+const quickSortCode = `function quickSort(arr, low, high) {
+  if (low < high) {
+    const pi = partition(arr, low, high);
+    quickSort(arr, low, pi - 1);
+    quickSort(arr, pi + 1, high);
+  }
+}
+
+function partition(arr, low, high) {
+  const pivot = arr[high];
+  let i = low - 1;
+  for (let j = low; j < high; j++) {
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  return i + 1;
+}`;
+
+const heapSortCode = `function heapSort(arr) {
+  const n = arr.length;
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapify(arr, n, i);
+  }
+  for (let i = n - 1; i > 0; i--) {
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    heapify(arr, i, 0);
+  }
+}
+
+function heapify(arr, n, i) {
+  let largest = i;
+  const l = 2 * i + 1;
+  const r = 2 * i + 2;
+  if (l < n && arr[l] > arr[largest]) largest = l;
+  if (r < n && arr[r] > arr[largest]) largest = r;
+  if (largest !== i) {
+    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+    heapify(arr, n, largest);
+  }
+}`;
 
 const algorithms: Algorithm[] = [
   {
@@ -28,7 +135,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(1)',
     speedScore: 20,
     merits: ['実装が非常に簡単', '安定ソートである', '省メモリ（追加の記憶領域をほとんど必要としない）'],
-    demerits: ['データ量が増えると非常に遅い', '実用的な場面ではほとんど使われない']
+    demerits: ['データ量が増えると非常に遅い', '実用的な場面ではほとんど使われない'],
+    code: bubbleSortCode
   },
   {
     id: 'selection',
@@ -39,7 +147,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(1)',
     speedScore: 25,
     merits: ['実装が簡単', 'スワップ（交換）の回数が最大でもN回で済む', '省メモリ'],
-    demerits: ['常にO(N²)の時間がかかるため遅い', '不安定ソートである']
+    demerits: ['常にO(N²)の時間がかかるため遅い', '不安定ソートである'],
+    code: selectionSortCode
   },
   {
     id: 'insertion',
@@ -50,7 +159,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(1)',
     speedScore: 40,
     merits: ['実装が比較的簡単', '整列済みのデータに対しては非常に高速(O(N))', '安定ソートである', 'データ数が少ない場合に有効'],
-    demerits: ['データ量が多いと遅い', '逆順のデータに対しては最も遅い']
+    demerits: ['データ量が多いと遅い', '逆順のデータに対しては最も遅い'],
+    code: insertionSortCode
   },
   {
     id: 'merge',
@@ -61,7 +171,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(N)',
     speedScore: 80,
     merits: ['常にO(N log N)で安定して高速', '安定ソートである', 'ランダムアクセスが遅い連結リストのソートに向いている'],
-    demerits: ['実装が少し複雑', 'データ量と同じサイズの追加メモリ領域が必要(O(N))']
+    demerits: ['実装が少し複雑', 'データ量と同じサイズの追加メモリ領域が必要(O(N))'],
+    code: mergeSortCode
   },
   {
     id: 'quick',
@@ -72,7 +183,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(log N)',
     speedScore: 95,
     merits: ['平均的に最も高速なソートの一つ', '追加メモリが少なくて済む', '多くの標準ライブラリで採用されている'],
-    demerits: ['最悪計算量がO(N²)になる可能性がある（ピボットの選び方に依存）', '不安定ソートである']
+    demerits: ['最悪計算量がO(N²)になる可能性がある（ピボットの選び方に依存）', '不安定ソートである'],
+    code: quickSortCode
   },
   {
     id: 'heap',
@@ -83,7 +195,8 @@ const algorithms: Algorithm[] = [
     spaceComplexity: 'O(1)',
     speedScore: 85,
     merits: ['常にO(N log N)で高速', '追加メモリをほとんど必要としない(O(1))', '最悪ケースでも安定した速度'],
-    demerits: ['実装が複雑', '不安定ソートである', '定数項が大きいため、平均的にはクイックソートより遅い場合が多い']
+    demerits: ['実装が複雑', '不安定ソートである', '定数項が大きいため、平均的にはクイックソートより遅い場合が多い'],
+    code: heapSortCode
   }
 ];
 
@@ -211,8 +324,19 @@ function openModal(algo: Algorithm) {
         <strong id="action-title" class="action-title">Ready to start!</strong>
         <p id="action-desc" class="action-desc">Startボタンを押すとアニメーションと解説が始まります。</p>
       </div>
-      <div id="array-container" class="array-container">
-        <!-- Bars will be generated here -->
+      
+      <div class="demo-dual-pane">
+        <div class="visualizer-pane">
+          <div id="array-container" class="array-container">
+            <!-- Bars will be generated here -->
+          </div>
+        </div>
+        <div class="code-pane">
+          <div class="code-header">Source Code (TypeScript/JS)</div>
+          <div id="code-container" class="code-container">
+            <!-- Code will be injected here -->
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -266,7 +390,34 @@ function setupDemo(algo: Algorithm) {
     }).join('');
   }
 
+  function renderCode(activeLine?: number, variables?: Record<string, any>) {
+    const codeContainer = document.getElementById('code-container');
+    if (!codeContainer) return;
+    const lines = algo.code.split('\n');
+    codeContainer.innerHTML = lines.map((line, idx) => {
+      const lineNum = idx + 1;
+      const isActive = lineNum === activeLine;
+      const safeLine = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      let varsHtml = '';
+      if (isActive && variables) {
+        const varsStr = Object.entries(variables).map(([k, v]) => `${k}=${v}`).join(', ');
+        varsHtml = `<span class="code-vars"> // ${varsStr}</span>`;
+      }
+
+      return `<div class="code-line ${isActive ? 'active-line' : ''}"><span class="line-number">${lineNum}</span><span class="line-content">${safeLine}${varsHtml}</span></div>`;
+    }).join('');
+
+    if (activeLine) {
+      const activeEl = codeContainer.querySelector('.active-line');
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+
   renderArray();
+  renderCode();
 
   btn.addEventListener('click', async () => {
     btn.disabled = true;
@@ -288,14 +439,16 @@ function setupDemo(algo: Algorithm) {
     }
 
     for await (const state of sortGenerator) {
-      // state: { arr: number[], active: number[], sorted: number[], message?: {title, desc} }
+      // state: { arr: number[], active: number[], sorted: number[], message?: {title, desc}, activeLine?: number, variables?: Record<string, any> }
       arr = [...state.arr];
       renderArray(state.active, state.sorted, state.message);
+      if (state.activeLine) renderCode(state.activeLine, state.variables);
       const currentDelay = speedMap[parseInt(speedSlider.value)].delay;
       await new Promise(r => setTimeout(r, currentDelay));
     }
 
     renderArray([], Array.from({length: arraySize}, (_, i) => i), { title: "Sorting Complete!", desc: "ソートが完了しました。" }); // All sorted
+    renderCode(); // clear active line
     btn.textContent = 'Done!';
     speedSlider.disabled = false;
   });
@@ -308,11 +461,11 @@ async function* bubbleSort(array: number[]) {
   const n = a.length;
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < n - i - 1; j++) {
-      yield { arr: a, active: [j, j+1], sorted: [], message: { title: `比較: ${a[j]} と ${a[j+1]}`, desc: `隣り合う要素を比較します。左(${a[j]})が右(${a[j+1]})より大きい場合、交換を行います。` } };
+      yield { arr: a, active: [j, j+1], sorted: [], activeLine: 5, variables: { 'arr[j]': a[j], 'arr[j + 1]': a[j+1] }, message: { title: `比較: ${a[j]} と ${a[j+1]}`, desc: `隣り合う要素を比較します。左(${a[j]})が右(${a[j+1]})より大きい場合、交換を行います。` } };
       if (a[j] > a[j + 1]) {
-        yield { arr: a, active: [j, j+1], sorted: [], message: { title: `交換条件に一致`, desc: `${a[j]} は ${a[j+1]} より大きいため、順序を正しくするためにスワップ（交換）します。` } };
+        yield { arr: a, active: [j, j+1], sorted: [], activeLine: 6, variables: { 'arr[j]': a[j], 'arr[j + 1]': a[j+1] }, message: { title: `交換条件に一致`, desc: `${a[j]} は ${a[j+1]} より大きいため、順序を正しくするためにスワップ（交換）します。` } };
         [a[j], a[j + 1]] = [a[j + 1], a[j]];
-        yield { arr: a, active: [j, j+1], sorted: [], message: { title: `交換完了`, desc: `要素の入れ替えが完了しました。大きい値が右へ移動しました。` } };
+        yield { arr: a, active: [j, j+1], sorted: [], activeLine: 6, variables: { 'arr[j]': a[j], 'arr[j + 1]': a[j+1] }, message: { title: `交換完了`, desc: `要素の入れ替えが完了しました。大きい値が右へ移動しました。` } };
       }
     }
   }
@@ -324,16 +477,16 @@ async function* selectionSort(array: number[]) {
   for (let i = 0; i < n - 1; i++) {
     let minIdx = i;
     for (let j = i + 1; j < n; j++) {
-      yield { arr: a, active: [minIdx, j], sorted: [], message: { title: `最小値の探索: 暫定最小値 ${a[minIdx]}`, desc: `現在の未ソート部分の最小値候補(${a[minIdx]})と、探索中の要素(${a[j]})を比較しています。` } };
+      yield { arr: a, active: [minIdx, j], sorted: [], activeLine: 6, variables: { 'arr[j]': a[j], 'arr[minIdx]': a[minIdx] }, message: { title: `最小値の探索: 暫定最小値 ${a[minIdx]}`, desc: `現在の未ソート部分の最小値候補(${a[minIdx]})と、探索中の要素(${a[j]})を比較しています。` } };
       if (a[j] < a[minIdx]) {
         minIdx = j;
-        yield { arr: a, active: [minIdx], sorted: [], message: { title: `新しい最小値を発見`, desc: `より小さい値(${a[minIdx]})が見つかりました。これを新しい最小値の候補とします。` } };
+        yield { arr: a, active: [minIdx], sorted: [], activeLine: 7, variables: { 'minIdx': j }, message: { title: `新しい最小値を発見`, desc: `より小さい値(${a[minIdx]})が見つかりました。これを新しい最小値の候補とします。` } };
       }
     }
     if (minIdx !== i) {
-      yield { arr: a, active: [i, minIdx], sorted: [], message: { title: `最小値の配置`, desc: `未ソート部分全体を調べ終わりました。見つけた最小値(${a[minIdx]})を、未ソート部分の先頭(${a[i]})と交換します。` } };
+      yield { arr: a, active: [i, minIdx], sorted: [], activeLine: 11, variables: { 'arr[i]': a[i], 'arr[minIdx]': a[minIdx] }, message: { title: `最小値の配置`, desc: `未ソート部分全体を調べ終わりました。見つけた最小値(${a[minIdx]})を、未ソート部分の先頭(${a[i]})と交換します。` } };
       [a[i], a[minIdx]] = [a[minIdx], a[i]];
-      yield { arr: a, active: [i, minIdx], sorted: [], message: { title: `交換完了`, desc: `最小値が適切な位置に配置され、ソート済み部分が1つ増えました。` } };
+      yield { arr: a, active: [i, minIdx], sorted: [], activeLine: 11, variables: { 'arr[i]': a[i], 'arr[minIdx]': a[minIdx] }, message: { title: `交換完了`, desc: `最小値が適切な位置に配置され、ソート済み部分が1つ増えました。` } };
     }
   }
 }
@@ -344,14 +497,14 @@ async function* insertionSort(array: number[]) {
   for (let i = 1; i < n; i++) {
     let key = a[i];
     let j = i - 1;
-    yield { arr: a, active: [i], sorted: [], message: { title: `挿入要素の選択: ${key}`, desc: `次にソート済み部分へ挿入する要素(${key})を選択しました。適切な位置を見つけるまで左へ比較していきます。` } };
+    yield { arr: a, active: [i], sorted: [], activeLine: 6, variables: { 'key': key, 'arr[j]': j >= 0 ? a[j] : 'undefined' }, message: { title: `挿入要素の選択: ${key}`, desc: `次にソート済み部分へ挿入する要素(${key})を選択しました。適切な位置を見つけるまで左へ比較していきます。` } };
     while (j >= 0 && a[j] > key) {
-      yield { arr: a, active: [j, j+1], sorted: [], message: { title: `要素のシフト: ${a[j]}`, desc: `比較対象の要素(${a[j]})は挿入要素(${key})より大きいため、右に一つずらして挿入用のスペースを空けます。` } };
+      yield { arr: a, active: [j, j+1], sorted: [], activeLine: 7, variables: { 'arr[j]': a[j] }, message: { title: `要素のシフト: ${a[j]}`, desc: `比較対象の要素(${a[j]})は挿入要素(${key})より大きいため、右に一つずらして挿入用のスペースを空けます。` } };
       a[j + 1] = a[j];
       j = j - 1;
     }
     a[j + 1] = key;
-    yield { arr: a, active: [j+1], sorted: [], message: { title: `要素の挿入`, desc: `適切な位置が見つかったため、要素(${key})を挿入しました。` } };
+    yield { arr: a, active: [j+1], sorted: [], activeLine: 10, variables: { 'key': key }, message: { title: `要素の挿入`, desc: `適切な位置が見つかったため、要素(${key})を挿入しました。` } };
   }
 }
 
@@ -362,14 +515,14 @@ async function* mergeSortWrapper(array: number[]) {
   async function* mergeSort(arr: number[], l: number, r: number): AsyncGenerator<any, void, unknown> {
     if (l >= r) return;
     const m = l + Math.floor((r - l) / 2);
-    yield { arr, active: [l, r], sorted: [], message: { title: `配列の分割`, desc: `インデックス ${l} から ${r} の範囲の配列を半分に分割します。` } };
+    yield { arr, active: [l, r], sorted: [], activeLine: 3, variables: { 'l': l, 'r': r }, message: { title: `配列の分割`, desc: `インデックス ${l} から ${r} の範囲の配列を半分に分割します。` } };
     yield* mergeSort(arr, l, m);
     yield* mergeSort(arr, m + 1, r);
     yield* merge(arr, l, m, r);
   }
   
   async function* merge(arr: number[], l: number, m: number, r: number) {
-    yield { arr, active: [l, r], sorted: [], message: { title: `配列の統合 (Merge)`, desc: `分割された2つのソート済み部分配列を、1つの配列へと順番に併合（マージ）します。` } };
+    yield { arr, active: [l, r], sorted: [], activeLine: 10, variables: { 'l': l, 'm': m, 'r': r }, message: { title: `配列の統合 (Merge)`, desc: `分割された2つのソート済み部分配列を、1つの配列へと順番に併合（マージ）します。` } };
     const n1 = m - l + 1;
     const n2 = r - m;
     const L = new Array(n1);
@@ -380,14 +533,14 @@ async function* mergeSortWrapper(array: number[]) {
     
     let i = 0, j = 0, k = l;
     while (i < n1 && j < n2) {
-      yield { arr, active: [k], sorted: [], message: { title: `値の比較と配置`, desc: `左側の要素(${L[i]})と右側の要素(${R[j]})を比較します。` } };
+      yield { arr, active: [k], sorted: [], activeLine: 14, variables: { 'L[i]': L[i], 'R[j]': R[j] }, message: { title: `値の比較と配置`, desc: `左側の要素(${L[i]})と右側の要素(${R[j]})を比較します。` } };
       if (L[i] <= R[j]) {
         arr[k] = L[i];
-        yield { arr, active: [k], sorted: [], message: { title: `左側の値を配置`, desc: `${L[i]} が選ばれて元の配列に配置されました。` } };
+        yield { arr, active: [k], sorted: [], activeLine: 15, variables: { 'L[i]': L[i] }, message: { title: `左側の値を配置`, desc: `${L[i]} が選ばれて元の配列に配置されました。` } };
         i++;
       } else {
         arr[k] = R[j];
-        yield { arr, active: [k], sorted: [], message: { title: `右側の値を配置`, desc: `${R[j]} が選ばれて元の配列に配置されました。` } };
+        yield { arr, active: [k], sorted: [], activeLine: 17, variables: { 'R[j]': R[j] }, message: { title: `右側の値を配置`, desc: `${R[j]} が選ばれて元の配列に配置されました。` } };
         j++;
       }
       k++;
@@ -395,12 +548,12 @@ async function* mergeSortWrapper(array: number[]) {
     
     while (i < n1) {
       arr[k] = L[i];
-      yield { arr, active: [k], sorted: [], message: { title: `残りの値を配置`, desc: `左側に残っていた要素(${L[i]})をそのまま配置します。` } };
+      yield { arr, active: [k], sorted: [], activeLine: 21, variables: { 'L[i]': L[i] }, message: { title: `残りの値を配置`, desc: `左側に残っていた要素(${L[i]})をそのまま配置します。` } };
       i++; k++;
     }
     while (j < n2) {
       arr[k] = R[j];
-      yield { arr, active: [k], sorted: [], message: { title: `残りの値を配置`, desc: `右側に残っていた要素(${R[j]})をそのまま配置します。` } };
+      yield { arr, active: [k], sorted: [], activeLine: 22, variables: { 'R[j]': R[j] }, message: { title: `残りの値を配置`, desc: `右側に残っていた要素(${R[j]})をそのまま配置します。` } };
       j++; k++;
     }
   }
@@ -422,7 +575,7 @@ async function* quickSortWrapper(array: number[]) {
       }
       pi = result.value as number;
       
-      yield { arr, active: [pi], sorted: [pi], message: { title: `基準値の確定`, desc: `ピボット(${arr[pi]})の最終的な位置が確定しました。この位置より左は小さく、右は大きな値になっています。` } };
+      yield { arr, active: [pi], sorted: [pi], activeLine: 3, variables: { 'pi': arr[pi] }, message: { title: `基準値の確定`, desc: `ピボット(${arr[pi]})の最終的な位置が確定しました。この位置より左は小さく、右は大きな値になっています。` } };
       yield* quickSort(arr, low, pi - 1);
       yield* quickSort(arr, pi + 1, high);
     }
@@ -430,20 +583,20 @@ async function* quickSortWrapper(array: number[]) {
 
   async function* partition(arr: number[], low: number, high: number) {
     const pivot = arr[high];
-    yield { arr, active: [high], sorted: [], message: { title: `ピボットの選択: ${pivot}`, desc: `区間の末尾の要素(${pivot})をピボット（基準値）として選択しました。この基準より小さいものを左へ、大きいものを右へ分けます。` } };
+    yield { arr, active: [high], sorted: [], activeLine: 10, variables: { 'pivot': pivot }, message: { title: `ピボットの選択: ${pivot}`, desc: `区間の末尾の要素(${pivot})をピボット（基準値）として選択しました。この基準より小さいものを左へ、大きいものを右へ分けます。` } };
     let i = (low - 1);
     for (let j = low; j <= high - 1; j++) {
-      yield { arr, active: [j, high], sorted: [], message: { title: `ピボットとの比較`, desc: `現在の要素(${arr[j]})とピボット(${pivot})を比較しています。` } };
+      yield { arr, active: [j, high], sorted: [], activeLine: 13, variables: { 'arr[j]': arr[j], 'pivot': pivot }, message: { title: `ピボットとの比較`, desc: `現在の要素(${arr[j]})とピボット(${pivot})を比較しています。` } };
       if (arr[j] < pivot) {
         i++;
-        yield { arr, active: [i, j], sorted: [], message: { title: `要素の入れ替え`, desc: `要素(${arr[j]})はピボットより小さいため、左側のグループに追加するために交換を行います。` } };
+        yield { arr, active: [i, j], sorted: [], activeLine: 15, variables: { 'arr[i]': arr[i], 'arr[j]': arr[j] }, message: { title: `要素の入れ替え`, desc: `要素(${arr[j]})はピボットより小さいため、左側のグループに追加するために交換を行います。` } };
         [arr[i], arr[j]] = [arr[j], arr[i]];
-        yield { arr, active: [i, j], sorted: [], message: { title: `交換完了`, desc: `要素が左側のグループに移動しました。` } };
+        yield { arr, active: [i, j], sorted: [], activeLine: 15, variables: { 'arr[i]': arr[i], 'arr[j]': arr[j] }, message: { title: `交換完了`, desc: `要素が左側のグループに移動しました。` } };
       }
     }
-    yield { arr, active: [i + 1, high], sorted: [], message: { title: `ピボットの移動`, desc: `全ての比較が終了したため、ピボット(${pivot})を最終的な境界位置（左グループの直後）へ移動します。` } };
+    yield { arr, active: [i + 1, high], sorted: [], activeLine: 18, variables: { 'arr[i+1]': arr[i+1], 'arr[high]': arr[high] }, message: { title: `ピボットの移動`, desc: `全ての比較が終了したため、ピボット(${pivot})を最終的な境界位置（左グループの直後）へ移動します。` } };
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-    yield { arr, active: [i + 1, high], sorted: [], message: { title: `ピボットの配置完了`, desc: `ピボットが適切な境界位置に配置されました。` } };
+    yield { arr, active: [i + 1, high], sorted: [], activeLine: 18, variables: { 'arr[i+1]': arr[i+1], 'arr[high]': arr[high] }, message: { title: `ピボットの配置完了`, desc: `ピボットが適切な境界位置に配置されました。` } };
     return (i + 1);
   }
 
@@ -459,28 +612,28 @@ async function* heapSort(array: number[]) {
     const l = 2 * i + 1;
     const r = 2 * i + 2;
 
-    yield { arr, active: [i, l, r].filter(x => x < n), sorted: [], message: { title: `ヒープ構造の調整`, desc: `親ノード(${arr[i]})とその子ノード間で、最大値が親になるように比較・調整（ヒープ化）を行っています。` } };
+    yield { arr, active: [i, l, r].filter(x => x < n), sorted: [], activeLine: 16, variables: { 'arr[l]': l < n ? arr[l] : 'N/A', 'arr[largest]': arr[largest] }, message: { title: `ヒープ構造の調整`, desc: `親ノード(${arr[i]})とその子ノード間で、最大値が親になるように比較・調整（ヒープ化）を行っています。` } };
 
     if (l < n && arr[l] > arr[largest]) largest = l;
     if (r < n && arr[r] > arr[largest]) largest = r;
 
     if (largest !== i) {
-      yield { arr, active: [i, largest], sorted: [], message: { title: `親子の入れ替え`, desc: `子ノード(${arr[largest]})の方が親ノードより大きいため、位置を交換してヒープの性質を維持します。` } };
+      yield { arr, active: [i, largest], sorted: [], activeLine: 19, variables: { 'largest': largest, 'i': i }, message: { title: `親子の入れ替え`, desc: `子ノード(${arr[largest]})の方が親ノードより大きいため、位置を交換してヒープの性質を維持します。` } };
       [arr[i], arr[largest]] = [arr[largest], arr[i]];
-      yield { arr, active: [i, largest], sorted: [], message: { title: `入れ替え完了`, desc: `親子を交換しました。影響を受けた下位ツリーに対してもヒープ化を続行します。` } };
+      yield { arr, active: [i, largest], sorted: [], activeLine: 20, variables: { 'arr[i]': arr[i], 'arr[largest]': arr[largest] }, message: { title: `入れ替え完了`, desc: `親子を交換しました。影響を受けた下位ツリーに対してもヒープ化を続行します。` } };
       yield* heapify(arr, n, largest);
     }
   }
 
-  yield { arr: a, active: [], sorted: [], message: { title: `初期ヒープの構築`, desc: `まず、配列全体から最大値が必ず頂点（先頭）に来る「最大ヒープ（Max-Heap）」という木構造を構築します。` } };
+  yield { arr: a, active: [], sorted: [], activeLine: 4, message: { title: `初期ヒープの構築`, desc: `まず、配列全体から最大値が必ず頂点（先頭）に来る「最大ヒープ（Max-Heap）」という木構造を構築します。` } };
   for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
     yield* heapify(a, n, i);
   }
 
   for (let i = n - 1; i > 0; i--) {
-    yield { arr: a, active: [0, i], sorted: [], message: { title: `最大値の取り出し`, desc: `ヒープの頂点にある現在最大の要素(${a[0]})を、未ソート部分の末尾(${a[i]})と交換して位置を確定させます。` } };
+    yield { arr: a, active: [0, i], sorted: [], activeLine: 8, variables: { 'arr[0]': a[0], 'arr[i]': a[i] }, message: { title: `最大値の取り出し`, desc: `ヒープの頂点にある現在最大の要素(${a[0]})を、未ソート部分の末尾(${a[i]})と交換して位置を確定させます。` } };
     [a[0], a[i]] = [a[i], a[0]];
-    yield { arr: a, active: [0, i], sorted: [], message: { title: `残りの再ヒープ化`, desc: `最大値を取り出したため、残りの要素で再び最大ヒープの構造を満たすよう再帰的に調整を行います。` } };
+    yield { arr: a, active: [0, i], sorted: [], activeLine: 9, message: { title: `残りの再ヒープ化`, desc: `最大値を取り出したため、残りの要素で再び最大ヒープの構造を満たすよう再帰的に調整を行います。` } };
     yield* heapify(a, i, 0);
   }
 }
